@@ -77,3 +77,6 @@ box.y = box.y - box.contentHeight
 
 
 Runtime:addEventListener("enterFrame", scroll)
+
+-- Change by jordan
+
