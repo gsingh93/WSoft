@@ -1,4 +1,7 @@
-INITIAL_VELOCITY = 2;
+Tree = require("tree").Tree
+Trampoline = require("trampoline").Trampoline
+Sandbox = require("sandbox").Sandbox
+GlobalConstants = require("globalConstants")
 
 -- Random object genarator
 function generateObstacle(object, n)
@@ -17,7 +20,9 @@ local function scroll(event)
 	background1.y = background1.y + background1.velocity.y
 	background2.y = background2.y + background2.velocity.y
 	background3.y = background3.y + background3.velocity.y
-	
+	print(tree.velocity)
+	print(tramp.velocity)
+	print(sandbox.velocity)
 	-- Move the shadow
 	box.shadow.y = box.shadow.y - box.velocity.z
 	
@@ -73,7 +78,7 @@ function initBackground(initY)
 	background.width = display.contentWidth
 	background:setReferencePoint(display.TopLeftReferencePoint)
 	background.velocity = {}
-	background.velocity.y = INITIAL_VELOCITY
+	background.velocity.y = GlobalConstants.INITIAL_VELOCITY
 	background.x = 0
 	
 	return background
@@ -83,21 +88,15 @@ background2 = initBackground(5-background1.contentHeight)
 background3 = initBackground(background1.contentHeight)
 
 -- Creates n trees. TODO: Create a dynamic number of trees and stop overlap of trees
-tree = {}
-tramp = {}
-sandbox = {}
-tree.velocity = 2
-tree.imagePath = "images/tree1small.png"
-tramp.velocity = 2
-tramp.imagePath = "images/sandboxLOW.png"
-sandbox.velocity = 2
-sandbox.imagePath = "images/trampolineLOW.png"
+tree = Tree:new({imagePath = "images/tree1small.png"})
+tramp = Trampoline:new({imagePath = "images/trampolineLOW.png"})
+sandbox = Sandbox:new({imagePath = "images/sandboxLOW.png"})
 
 n = 3
 for i = 1, n do
-	tree.i = generateObstacle(tree, i)
-	tramp.i = generateObstacle(tramp, i)
-	sandbox.i = generateObstacle(sandbox, i)
+	tree[i] = generateObstacle(tree, i)
+	tramp[i] = generateObstacle(tramp, i)
+	sandbox[i] = generateObstacle(sandbox, i)
 end
 
 -- Create a box and center it
