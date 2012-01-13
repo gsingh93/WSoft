@@ -7,6 +7,8 @@ function generateObstacle(object, n)
 	y = math.random(-display.contentHeight+object[n].contentHeight, -object[n].contentHeight)
 	object[n].x = x
 	object[n].y = y
+	
+	return object[n]
 end
 
 -- Scroll backgrounds and trees
@@ -37,27 +39,27 @@ local function scroll(event)
 	end
 	
 	-- Scroll the trees and if a tree reaches the bottom, remove it and generate another tree
-	for i = 0, n do
-		tree.n.y = tree.n.y + tree.velocity
-		if tree.n.y >= display.contentHeight+50 then
-			tree.n:removeSelf()
-			generateTree(n)
+	for i = 1, n do
+		tree[i].y = tree[i].y + tree.velocity
+		if tree[i].y >= display.contentHeight+50 then
+			tree[i]:removeSelf()
+			tree[i] = generateObstacle(tree, i)
 		end
 	end
 		-- Scroll the tramps and if a tramp reaches the bottom, remove it and generate another tramp
-	for i = 0, n do
-		tramp.n.y = tramp.n.y + tramp.velocity
-		if tramp.n.y >= display.contentHeight+50 then
-			tramp.n:removeSelf()
-			generateTramp(n)
+	for i = 1, n do
+		tramp[i].y = tramp[i].y + tramp.velocity
+		if tramp[i].y >= display.contentHeight+50 then
+			tramp[i]:removeSelf()
+			tramp[i] = generateObstacle(tramp, i)
 		end
 	end
 	
-	for i = 0, n do
-		sandbox.n.y = sandbox.n.y + sandbox.velocity
-		if sandbox.n.y >= display.contentHeight+50 then
-			sandbox.n:removeSelf()
-			generateSandBox(n)
+	for i = 1, n do
+		sandbox[i].y = sandbox[i].y + sandbox.velocity
+		if sandbox[i].y >= display.contentHeight+50 then
+			sandbox[i]:removeSelf()
+			sandbox[i] = generateObstacle(sandbox, i)
 		end
 	end
 end
@@ -92,7 +94,7 @@ sandbox.velocity = 2
 sandbox.imagePath = "images/trampolineLOW.png"
 
 n = 3
-for i= 1, n do
+for i = 1, n do
 	tree.i = generateObstacle(tree, i)
 	tramp.i = generateObstacle(tramp, i)
 	sandbox.i = generateObstacle(sandbox, i)
