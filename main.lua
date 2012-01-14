@@ -73,7 +73,7 @@ end
 display.setStatusBar(display.HiddenStatusBar)
 
 -- Set the backgrounds, sizes, and positions
-function initBackground(initY)
+local function initBackground(initY)
 	local background = display.newImage("images/grass.png", 0, initY)
 	background.width = display.contentWidth
 	background:setReferencePoint(display.TopLeftReferencePoint)
@@ -100,12 +100,12 @@ for i = 1, n do
 end
 
 -- Create a box and center it
-box = display.newImage("images/box.jpg", display.contentWidth/2, display.contentHeight - 20)
+box = display.newImage("images/personLOW.png", display.contentWidth/2, display.contentHeight - 20)
 box.x = box.x - box.contentWidth/2
 box.y = box.y - box.contentHeight
 
 -- Initialize the box's shadow
-box.shadow = display.newImage("images/box.jpg", box.x- box.contentWidth/2, box.y - box.contentHeight/2)
+box.shadow = display.newImage("images/person_shadowLOW.png", box.x- box.contentWidth/2, box.y - box.contentHeight/2)
 
 -- Set the box's intial z velocity. This will change once cannon is implemented
 box.velocity = {}
