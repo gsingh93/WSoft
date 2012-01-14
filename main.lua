@@ -1,6 +1,6 @@
 Tree = require("tree").Tree
 Trampoline = require("trampoline").Trampoline
-Sandbox = require("sandbox").Sandbox
+Sandplayer = require("sandplayer").Sandplayer
 GlobalConstants = require("globalConstants")
 
 -- Hide the status bar
@@ -36,24 +36,24 @@ local function scroll(event)
 	background3.y = background3.y + background3.velocity.y
 
 	-- Move the shadow
-	box.shadow.y = box.shadow.y - box.velocity.z
+	player.shadow.y = player.shadow.y - player.velocity.z
 	
 	-- Change the z velocity
-	if(box.shadow.y < box.y) then
-		box.velocity.z = box.velocity.z - gravity
-		print(box.velocity.z)
-		print(box.shadow.y)
+	if(player.shadow.y < player.y) then
+		player.velocity.z = player.velocity.z - gravity
+		print(player.velocity.z)
+		print(player.shadow.y)
 		--os.execute("ping 1.1.1.1 -n 1 -w 1000 > nul")
-	elseif (box.shadow.y > box.y) then
-		box.velocity.z = -box.velocity.z
+	elseif (player.shadow.y > player.y) then
+		player.velocity.z = -player.velocity.z
 	end
 	
-	if(box.velocity.z > 0) then
-		box:scale(1/.99, 1/.99)
-		box.shadow:scale(.99, .99)
+	if(player.velocity.z > 0) then
+		player:scale(1/.99, 1/.99)
+		player.shadow:scale(.99, .99)
 	else
-		box:scale(.99, .99)
-		box.shadow:scale(1/.99, 1/.99)
+		player:scale(.99, .99)
+		player.shadow:scale(1/.99, 1/.99)
 	end
 	
 	-- If the top of the background reaches the bottom of the screen
@@ -69,7 +69,14 @@ local function scroll(event)
 	-- Scroll all the obstacles
 	scrollObject(tree, n)
 	scrollObject(tramp, n)
-	scrollObject(sandbox, n)
+	scrollObject(sandplayer, n)
+end
+
+-- Accelerometer
+local function onTilt( event )
+	player.x = player.x + (10 * event.xGravity)
+	--player.y = player.y + (35 * event.yGravity * -1)
+	player.shadow.x = player.x
 end
 
 -- Set the backgrounds, sizes, and positions
@@ -90,37 +97,29 @@ background3 = initBackground(background1.contentHeight)
 -- Creates n trees. TODO: Create a dynamic number of trees and stop overlap of trees
 tree = Tree:new({imagePath = "images/tree1small.png"})
 tramp = Trampoline:new({imagePath = "images/trampolineLOW.png"})
-sandbox = Sandbox:new({imagePath = "images/sandboxLOW.png"})
+sandplayer = Sandplayer:new({imagePath = "images/sandplayerLOW.png"})
 
 n = 3
 for i = 1, n do
 	tree[i] = generateObstacle(tree, i)
 	tramp[i] = generateObstacle(tramp, i)
-	sandbox[i] = generateObstacle(sandbox, i)
+	sandplayer[i] = generateObstacle(sandplayer, i)
 end
 
--- Create a box and center it
-box = display.newImage("images/personLOW.png", display.contentWidth/2, display.contentHeight - 20)
-box.x = box.x - box.contentWidth/2
-box.y = box.y - box.contentHeight
+-- Create a player and center it
+player = display.newImage("images/personLOW.png", display.contentWidth/2, display.contentHeight - 20)
+player.x = player.x - player.contentWidth/2
+player.y = player.y - player.contentHeight
 
--- Initialize the box's shadow
-box.shadow = display.newImage("images/person_shadowLOW.png", box.x- box.contentWidth/2, box.y - box.contentHeight/2)
+-- Initialize the player's shadow
+player.shadow = display.newImage("images/person_shadowLOW.png", player.x- player.contentWidth/2, player.y - player.contentHeight/2)
 
--- Set the box's intial z velocity. This will change once cannon is implemented
-box.velocity = {}
-box.velocity.z = 40
+-- Set the player's intial z velocity. This will change once cannon is implemented
+player.velocity = {}
+player.velocity.z = 40
 
 -- Set the value of gravity
 gravity = 1
-
--- Change by jordan
--- Accelerometer
-local function onTilt( event )
-	box.x = box.x + (10 * event.xGravity)
-	--box.y = box.y + (35 * event.yGravity * -1)
-	box.shadow.x = box.x
-end
 
 Runtime:addEventListener("enterFrame", scroll)
 Runtime:addEventListener("accelerometer", onTilt)
