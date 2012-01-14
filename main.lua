@@ -20,17 +20,26 @@ local function scroll(event)
 	background1.y = background1.y + background1.velocity.y
 	background2.y = background2.y + background2.velocity.y
 	background3.y = background3.y + background3.velocity.y
-	print(tree.velocity)
-	print(tramp.velocity)
-	print(sandbox.velocity)
+
 	-- Move the shadow
 	box.shadow.y = box.shadow.y - box.velocity.z
 	
 	-- Change the z velocity
-	if(box.shadow.y < box.y or box.velocity.z > 0) then
+	if(box.shadow.y < box.y) then
 		box.velocity.z = box.velocity.z - gravity
 		print(box.velocity.z)
 		print(box.shadow.y)
+		--os.execute("ping 1.1.1.1 -n 1 -w 1000 > nul")
+	elseif (box.shadow.y > box.y) then
+		box.velocity.z = -box.velocity.z
+	end
+	
+	if(box.velocity.z > 0) then
+		box:scale(1/.99, 1/.99)
+		box.shadow:scale(.99, .99)
+	else
+		box:scale(.99, .99)
+		box.shadow:scale(1/.99, 1/.99)
 	end
 	
 	-- If the top of the background reaches the bottom of the screen
@@ -51,7 +60,8 @@ local function scroll(event)
 			tree[i] = generateObstacle(tree, i)
 		end
 	end
-		-- Scroll the tramps and if a tramp reaches the bottom, remove it and generate another tramp
+	
+	-- Scroll the tramps and if a tramp reaches the bottom, remove it and generate another tramp
 	for i = 1, n do
 		tramp[i].y = tramp[i].y + tramp.velocity
 		if tramp[i].y >= display.contentHeight+50 then
