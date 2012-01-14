@@ -3,7 +3,10 @@ Trampoline = require("trampoline").Trampoline
 Sandbox = require("sandbox").Sandbox
 GlobalConstants = require("globalConstants")
 
--- Random object genarator
+-- Hide the status bar
+display.setStatusBar(display.HiddenStatusBar)
+
+-- Random position object genarator
 function generateObstacle(object, n)
 	object[n] = display.newImage(object.imagePath)
 	x = math.random(object[n].contentWidth, display.contentWidth-object[n].contentWidth)
@@ -12,6 +15,17 @@ function generateObstacle(object, n)
 	object[n].y = y
 	
 	return object[n]
+end
+
+-- Scroll the object and if it reaches the bottom, remove it and generate another object
+local function scrollObject(object, n)
+	for i = 1, n do
+		object[i].y = object[i].y + object.velocity
+		if object[i].y >= display.contentHeight+50 then
+			object[i]:removeSelf()
+			object[i] = generateObstacle(object, i)
+		end
+	end
 end
 
 -- Scroll backgrounds and trees
@@ -52,35 +66,11 @@ local function scroll(event)
 		background3.y = 5-background1.contentHeight
 	end
 	
-	-- Scroll the trees and if a tree reaches the bottom, remove it and generate another tree
-	for i = 1, n do
-		tree[i].y = tree[i].y + tree.velocity
-		if tree[i].y >= display.contentHeight+50 then
-			tree[i]:removeSelf()
-			tree[i] = generateObstacle(tree, i)
-		end
-	end
-	
-	-- Scroll the tramps and if a tramp reaches the bottom, remove it and generate another tramp
-	for i = 1, n do
-		tramp[i].y = tramp[i].y + tramp.velocity
-		if tramp[i].y >= display.contentHeight+50 then
-			tramp[i]:removeSelf()
-			tramp[i] = generateObstacle(tramp, i)
-		end
-	end
-	
-	for i = 1, n do
-		sandbox[i].y = sandbox[i].y + sandbox.velocity
-		if sandbox[i].y >= display.contentHeight+50 then
-			sandbox[i]:removeSelf()
-			sandbox[i] = generateObstacle(sandbox, i)
-		end
-	end
+	-- Scroll all the obstacles
+	scrollObject(tree, n)
+	scrollObject(tramp, n)
+	scrollObject(sandbox, n)
 end
-
--- Hide the status bar
-display.setStatusBar(display.HiddenStatusBar)
 
 -- Set the backgrounds, sizes, and positions
 local function initBackground(initY)
@@ -129,6 +119,7 @@ gravity = 1
 local function onTilt( event )
 	box.x = box.x + (10 * event.xGravity)
 	--box.y = box.y + (35 * event.yGravity * -1)
+	box.shadow.x = box.x
 end
 
 Runtime:addEventListener("enterFrame", scroll)
