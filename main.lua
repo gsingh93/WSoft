@@ -1,6 +1,6 @@
 Tree = require("tree").Tree
 Trampoline = require("trampoline").Trampoline
-Sandplayer = require("sandplayer").Sandplayer
+Sandbox = require("sandbox").Sandbox
 GlobalConstants = require("globalConstants")
 
 -- Hide the status bar
@@ -13,6 +13,9 @@ function generateObstacle(object, n)
 	y = math.random(-display.contentHeight+object[n].contentHeight, -object[n].contentHeight)
 	object[n].x = x
 	object[n].y = y
+	object[n].boundingBox = object:setBoundingBox({x = x, y = y, width = object[n].contentWidth, height = object[n].contentHeight, n = n})
+	
+	object[n].boundingBox:contains({x = x+1, y = y+1})
 	
 	return object[n]
 end
@@ -69,7 +72,7 @@ local function scroll(event)
 	-- Scroll all the obstacles
 	scrollObject(tree, n)
 	scrollObject(tramp, n)
-	scrollObject(sandplayer, n)
+	scrollObject(sandbox, n)
 end
 
 -- Accelerometer
@@ -97,13 +100,13 @@ background3 = initBackground(background1.contentHeight)
 -- Creates n trees. TODO: Create a dynamic number of trees and stop overlap of trees
 tree = Tree:new({imagePath = "images/tree1small.png"})
 tramp = Trampoline:new({imagePath = "images/trampolineLOW.png"})
-sandplayer = Sandplayer:new({imagePath = "images/sandplayerLOW.png"})
+sandbox = Sandbox:new({imagePath = "images/sandboxLOW.png"})
 
 n = 3
 for i = 1, n do
 	tree[i] = generateObstacle(tree, i)
 	tramp[i] = generateObstacle(tramp, i)
-	sandplayer[i] = generateObstacle(sandplayer, i)
+	sandbox[i] = generateObstacle(sandbox, i)
 end
 
 -- Create a player and center it

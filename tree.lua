@@ -1,9 +1,10 @@
 -- Tree Class --
+
 module(..., package.seeall)
 
-local ObstacleClass = require ("obstacle")
+local Obstacle = require ("obstacle").Obstacle
 
-Tree = ObstacleClass.Obstacle:new()
+Tree = Obstacle:new()
 
 function Tree:new(o)
 	o = o or {}

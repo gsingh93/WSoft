@@ -1,9 +1,9 @@
 -- Trampoline Class --
 module(..., package.seeall)
 
-local ObstacleClass = require ("obstacle")
+local Obstacle = require ("obstacle").Obstacle
 
-Trampoline = ObstacleClass.Obstacle:new()
+Trampoline = Obstacle:new()
 
 function Trampoline:new(o)
 	o = o or {}

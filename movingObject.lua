@@ -1,4 +1,5 @@
 -- Moving Object Abstract Class
+
 module(..., package.seeall)
 
 local GlobalConstants = require("globalConstants")
