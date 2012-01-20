@@ -3,31 +3,93 @@ Trampoline = require("trampoline").Trampoline
 Sandbox = require("sandbox").Sandbox
 GlobalConstants = require("globalConstants")
 
+-- Minimum amount of space between obstacles
+PADDING = 10
+
 -- Hide the status bar
 display.setStatusBar(display.HiddenStatusBar)
 
 -- Random position object genarator
-function generateObstacle(object, n)
-	object[n] = display.newImage(object.imagePath)
-	x = math.random(object[n].contentWidth, display.contentWidth-object[n].contentWidth)
-	y = math.random(-display.contentHeight+object[n].contentHeight, -object[n].contentHeight)
-	object[n].x = x
-	object[n].y = y
-	object[n].boundingBox = object:setBoundingBox({x = x, y = y, width = object[n].contentWidth, height = object[n].contentHeight, n = n})
+function generateObstacle(obstacleType)
+	obstacle = display.newImage(obstacleType.imagePath)
 	
-	object[n].boundingBox:contains({x = x+1, y = y+1})
+	obstacle.x = math.random(obstacle.contentWidth, display.contentWidth-obstacle.contentWidth)
+	obstacle.y = math.random(-display.contentHeight+obstacle.contentHeight, -obstacle.contentHeight)
 	
-	return object[n]
+	for i,v in ipairs(tree) do
+		print(overlap(obstacle, tree[i]))
+		if(overlap(obstacle, tree[i])) then
+			print(obstacleType.name .. " on top of tree. Trying again")
+			print("Original Coords:")
+			print(obstacle.x)
+			print(obstacle.y)
+			obstacle = generateObstacle(obstacleType)
+			print("Final Coordinates:")
+			print(obstacle.x)
+			print(obstacle.y)
+			print("We're back")
+		end
+	end
+	
+	for i,v in ipairs(sandbox) do
+		print(overlap(obstacle, sandbox[i]))
+		if(overlap(obstacle, sandbox[i])) then
+			print(obstacleType.name .. " on top of sandbox. Trying again")
+			print("Original Coords:")
+			print(obstacle.x)
+			print(obstacle.y)
+			obstacle = generateObstacle(obstacleType)
+			print("Final Coordinates:")
+			print(obstacle.x)
+			print(obstacle.y)
+			print("We're back")
+		end
+	end
+	
+	for i,v in ipairs(tramp) do
+		print(overlap(obstacle, tramp[i]))
+		if(overlap(obstacle, tramp[i])) then
+			print(obstacleType.name .. " on top of tramp. Trying again")
+			print("Original Coords:")
+			print(obstacle.x)
+			print(obstacle.y)
+			obstacle = generateObstacle(obstacleType)
+			print("Final Coordinates:")
+			print(obstacle.x)
+			print(obstacle.y)
+			print("We're back")
+		end
+	end
+	print("-----")
+	
+	return obstacle
 end
 
 -- Scroll the object and if it reaches the bottom, remove it and generate another object
-local function scrollObject(object, n)
-	for i = 1, n do
+local function scrollObject(object)
+	for i,v in ipairs(object) do
 		object[i].y = object[i].y + object.velocity
 		if object[i].y >= display.contentHeight+50 then
 			object[i]:removeSelf()
-			object[i] = generateObstacle(object, i)
+			object[i] = generateObstacle(object)
 		end
+	end
+end
+
+function overlap(object1, object2)
+
+	local xdiff = math.abs(object2.x - object1.x) - PADDING
+	local ydiff = math.abs(object2.y - object1.y) - PADDING
+	
+	local w1 = object1.width
+	local w2 = object2.width
+	local h1 = object1.height
+	local h2 = object2.height
+	
+	if xdiff < (w1+w2)*0.5  and ydiff < (h1+h2)*0.5 then
+		return true
+	else
+		return false
 	end
 end
 
@@ -37,18 +99,27 @@ local function scroll(event)
 	background1.y = background1.y + background1.velocity.y
 	background2.y = background2.y + background2.velocity.y
 	background3.y = background3.y + background3.velocity.y
-
+	
 	-- Move the shadow
 	player.shadow.y = player.shadow.y - player.velocity.z
 	
 	-- Change the z velocity
 	if(player.shadow.y < player.y) then
 		player.velocity.z = player.velocity.z - gravity
-		print(player.velocity.z)
-		print(player.shadow.y)
-		--os.execute("ping 1.1.1.1 -n 1 -w 1000 > nul")
+		--print(player.velocity.z)
+		--print(player.shadow.y)
+		--pause(1)
 	elseif (player.shadow.y > player.y) then
 		player.velocity.z = -player.velocity.z
+		
+		-- Because the scaling is not exact, this stops the objects from growing
+		-- or shrinking continuously
+		player.xScale = 1.0
+		player.yScale = 1.0
+		player.shadow.xScale = 1.0
+		player.shadow.yScale = 1.0
+		player.shadow.y = player.y
+		--pause(1)
 	end
 	
 	if(player.velocity.z > 0) then
@@ -70,16 +141,20 @@ local function scroll(event)
 	end
 	
 	-- Scroll all the obstacles
-	scrollObject(tree, n)
-	scrollObject(tramp, n)
-	scrollObject(sandbox, n)
+	scrollObject(tree)
+	scrollObject(tramp)
+	scrollObject(sandbox)
 end
 
 -- Accelerometer
 local function onTilt( event )
-	player.x = player.x + (10 * event.xGravity)
+	player.x = player.x + (25 * event.xGravity)
 	--player.y = player.y + (35 * event.yGravity * -1)
 	player.shadow.x = player.x
+end
+
+function pause (pauseTime)
+	os.execute("timeout " .. pauseTime)
 end
 
 -- Set the backgrounds, sizes, and positions
@@ -97,16 +172,16 @@ background1 = initBackground(0)
 background2 = initBackground(5-background1.contentHeight)
 background3 = initBackground(background1.contentHeight)
 
--- Creates n trees. TODO: Create a dynamic number of trees and stop overlap of trees
-tree = Tree:new({imagePath = "images/tree1small.png"})
-tramp = Trampoline:new({imagePath = "images/trampolineLOW.png"})
-sandbox = Sandbox:new({imagePath = "images/sandboxLOW.png"})
+-- Creates n obstacles. TODO: Create a dynamic number of obstacles
+tree = Tree:new()
+tramp = Trampoline:new()
+sandbox = Sandbox:new()
 
 n = 3
 for i = 1, n do
-	tree[i] = generateObstacle(tree, i)
-	tramp[i] = generateObstacle(tramp, i)
-	sandbox[i] = generateObstacle(sandbox, i)
+	tree[i] = generateObstacle(tree)
+	tramp[i] = generateObstacle(tramp)
+	sandbox[i] = generateObstacle(sandbox)
 end
 
 -- Create a player and center it
@@ -114,8 +189,12 @@ player = display.newImage("images/personLOW.png", display.contentWidth/2, displa
 player.x = player.x - player.contentWidth/2
 player.y = player.y - player.contentHeight
 
+parent = player.parent
+
 -- Initialize the player's shadow
-player.shadow = display.newImage("images/person_shadowLOW.png", player.x- player.contentWidth/2, player.y - player.contentHeight/2)
+player.shadow = display.newImage("images/person_shadowLOW.png", player.x - player.contentWidth/2, player.y - player.contentHeight/2)
+
+parent:insert(player)
 
 -- Set the player's intial z velocity. This will change once cannon is implemented
 player.velocity = {}
