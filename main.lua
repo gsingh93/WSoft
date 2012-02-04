@@ -119,7 +119,24 @@ local function scroll(event)
 	background2.y = background2.y + background2.velocity.y
 	background3.y = background3.y + background3.velocity.y
 	
-	-- Move the shadow
+
+	
+	-- If the top of the background reaches the bottom of the screen
+	-- Move it right above the screen
+	if background1.y >= display.contentHeight then
+		background1.y = 5-background1.contentHeight
+	elseif background2.y >= display.contentHeight then
+		background2.y = 5-background1.contentHeight
+	elseif background3.y >= display.contentHeight then
+		background3.y = 5-background1.contentHeight
+	end
+	
+	-- Scroll all the obstacles
+	scrollObject(tree)
+	scrollObject(tramp)
+	scrollObject(sandbox)
+	
+		-- Move the shadow
 	player.shadow.y = player.shadow.y - player.velocity.z
 	
 	-- Change the z velocity
@@ -158,21 +175,6 @@ local function scroll(event)
 		player:scale(.99, .99)
 		player.shadow:scale(1/.99, 1/.99)
 	end
-	
-	-- If the top of the background reaches the bottom of the screen
-	-- Move it right above the screen
-	if background1.y >= display.contentHeight then
-		background1.y = 5-background1.contentHeight
-	elseif background2.y >= display.contentHeight then
-		background2.y = 5-background1.contentHeight
-	elseif background3.y >= display.contentHeight then
-		background3.y = 5-background1.contentHeight
-	end
-	
-	-- Scroll all the obstacles
-	scrollObject(tree)
-	scrollObject(tramp)
-	scrollObject(sandbox)
 end
 
 -- Accelerometer
