@@ -10,7 +10,7 @@ PADDING = 10
 display.setStatusBar(display.HiddenStatusBar)
 
 -- Random position object genarator
-function generateObstacle(obstacleType)
+function generateObstacle(obstacleType, player)
 	obstacle = display.newImage(obstacleType.imagePath)
 	
 	obstacle.x = math.random(obstacle.contentWidth, display.contentWidth-obstacle.contentWidth)
@@ -72,6 +72,8 @@ local function scrollObject(object)
 		if object[i].y >= display.contentHeight+50 then
 			object[i]:removeSelf()
 			object[i] = generateObstacle(object)
+			player.shadow:toFront()
+			player:toFront()
 		end
 	end
 end
@@ -93,8 +95,25 @@ function overlap(object1, object2)
 	end
 end
 
+-- This can be simplified. Possibly by changing the way backgrounds work
+local function changeVelocity(speedChange)
+	background1.velocity.y = background1.velocity.y + speedChange
+	background2.velocity.y = background2.velocity.y + speedChange
+	background3.velocity.y = background3.velocity.y + speedChange
+	
+	tree.velocity = tree.velocity + speedChange
+	tramp.velocity = tramp.velocity + speedChange
+	sandbox.velocity = sandbox.velocity + speedChange
+	
+	if (background1.velocity.y <= 0) then
+		--pause(10)
+		changeVelocity(2)
+	end
+end
+
 -- Scroll backgrounds and trees
 local function scroll(event)
+
 	-- Scroll the backgrounds
 	background1.y = background1.y + background1.velocity.y
 	background2.y = background2.y + background2.velocity.y
@@ -111,6 +130,16 @@ local function scroll(event)
 		--pause(1)
 	elseif (player.shadow.y > player.y) then
 		player.velocity.z = -player.velocity.z
+		
+		for i,v in ipairs(tramp) do
+			if(overlap(player, tree[i])) then
+				changeVelocity(tree.speedChange)
+			elseif(overlap(player, tramp[i])) then
+				changeVelocity(tramp.speedChange)
+			elseif(overlap(player, sandbox[i])) then
+				changeVelocity(sandbox.speedChange)
+			end
+		end
 		
 		-- Because the scaling is not exact, this stops the objects from growing
 		-- or shrinking continuously
